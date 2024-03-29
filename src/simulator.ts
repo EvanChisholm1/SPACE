@@ -15,20 +15,28 @@ export class Simulator {
     bodies: Body[] = [];
     boundaries: bound;
     gravityOn: boolean = true;
+    timeMultiplier: number = 1;
 
-    constructor(bodies: Body[], boundaries: bound, gravityOn: boolean = true) {
+    constructor(
+        bodies: Body[],
+        boundaries: bound,
+        gravityOn: boolean = true,
+        timeMultiplier: number = 1
+    ) {
         this.bodies = bodies;
         this.boundaries = boundaries;
         this.gravityOn = gravityOn;
+        this.timeMultiplier = timeMultiplier;
     }
 
     step(dt: number) {
+        dt *= this.timeMultiplier;
         const gravityGenerators = this.bodies.filter(
             (body) => body.generateGravity
         );
 
         for (const body of this.bodies) {
-            this.gravityOn && body.applyForce({ x: 0, y: Fg(body.mass) });
+            if (this.gravityOn) body.applyForce({ x: 0, y: Fg(body.mass) });
             for (const generator of gravityGenerators) {
                 if (generator === body) continue;
                 const gravity = body.findGeneratedGravity(generator);
