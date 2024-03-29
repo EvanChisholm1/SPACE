@@ -23,8 +23,16 @@ export class Simulator {
     }
 
     step(dt: number) {
+        const gravityGenerators = this.bodies.filter(
+            (body) => body.generateGravity
+        );
+
         for (const body of this.bodies) {
             this.gravityOn && body.applyForce({ x: 0, y: Fg(body.mass) });
+            for (const generator of gravityGenerators) {
+                const gravity = body.findGeneratedGravity(generator);
+                body.applyForce(gravity);
+            }
             body.update(dt);
         }
 
@@ -59,6 +67,7 @@ export class Simulator {
     }
 
     render(ctx: CanvasRenderingContext2D, pixelsPerMeter: number = 10) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
