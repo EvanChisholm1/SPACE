@@ -30,6 +30,7 @@ export class Simulator {
         for (const body of this.bodies) {
             this.gravityOn && body.applyForce({ x: 0, y: Fg(body.mass) });
             for (const generator of gravityGenerators) {
+                if (generator === body) continue;
                 const gravity = body.findGeneratedGravity(generator);
                 body.applyForce(gravity);
             }
