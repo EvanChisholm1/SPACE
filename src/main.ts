@@ -3,7 +3,8 @@ import { Simulator } from "./simulator";
 
 // const PIXELS_PER_METER = 1 / 1e8;
 
-const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+const frameCounterElement = document.querySelector("#frame_counter")!;
+const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 const WIDTH_IN_METERS = 1e9;
@@ -84,10 +85,15 @@ const simulator = orbit();
 // simulator.toggleGravity();
 
 let prevTime = performance.now();
+let frameCount = 0;
 function loop() {
     const currentTime = performance.now();
     const dt = (currentTime - prevTime) / 1000;
+    const FPS = 1 / dt;
+    if (frameCount === 0) frameCounterElement.textContent = FPS.toFixed(4);
     prevTime = currentTime;
+
+    frameCount = (frameCount + 1) % 60;
 
     simulator.step(dt);
     simulator.render(ctx, PIXELS_PER_METER);
