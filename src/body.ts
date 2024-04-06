@@ -58,8 +58,12 @@ export class Body {
         const radius = Math.sqrt(deltaPos.x ** 2 + deltaPos.y ** 2);
 
         const force = universalGravitation(this.mass, otherBody.mass, radius);
+        const theta = Math.atan2(deltaPos.y, deltaPos.x);
 
-        const gravity = scaleVec(normalizeVec(deltaPos), force);
+        const gravity: Vec2d = {
+            x: Math.cos(theta) * force,
+            y: Math.sin(theta) * force,
+        };
 
         return gravity;
     }
