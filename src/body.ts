@@ -5,6 +5,14 @@ function universalGravitation(m1: number, m2: number, r: number): number {
     return (G * m1 * m2) / r ** 2;
 }
 
+interface BodyOptions {
+    position: Vec2d;
+    velocity: Vec2d;
+    mass: number;
+    radius: number;
+    generateGravity?: boolean;
+}
+
 export class Body {
     position: Vec2d;
     velocity: Vec2d;
