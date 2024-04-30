@@ -153,7 +153,29 @@ function manyBouncyBalls() {
     });
 }
 
-const simulator = manyBouncyBalls();
+// const simulator = manyBouncyBalls();
+
+function wallCollision() {
+    const bodies = [
+        new Body({
+            position: { x: 50, y: 50 },
+            velocity: { x: -20, y: -10 },
+            mass: 1,
+            radius: 3,
+        }),
+    ];
+
+    return new Simulator(
+        bodies,
+        {
+            x: { min: 0, max: canvas.width / PIXELS_PER_METER },
+            y: { min: 0, max: canvas.height / PIXELS_PER_METER },
+        },
+        false
+    );
+}
+
+const simulator = wallCollision();
 
 let prevTime = performance.now();
 let frameCount = 0;

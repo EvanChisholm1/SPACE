@@ -51,6 +51,43 @@ function findPOI1dStaticLinear(
     );
 }
 
+interface WallCollisionOptions {
+    wallDirection: "vert" | "horiz";
+    x?: number;
+    y?: number;
+}
+
+function wallCollisionResolution(body: Body, options: WallCollisionOptions) {
+    const wallDirection = options.wallDirection;
+    const wallAxisPos = wallDirection === "vert" ? options.x! : options.y!;
+
+    const bodyAxisVel =
+        wallDirection === "vert" ? body.velocity.x : body.velocity.y;
+    const bodyAxisPos =
+        wallDirection === "vert" ? body.position.x : body.position.y;
+
+    const prevPos = bodyAxisPos - bodyAxisVel * body._prevDt;
+    const timeToCollision = findPOI1dStaticLinear(
+        bodyAxisVel,
+        prevPos,
+        body.radius,
+        wallAxisPos
+    );
+
+    const afterCollision =
+        wallAxisPos +
+        (prevPos < wallAxisPos ? -body.radius : body.radius) -
+        bodyAxisVel * (body._prevDt - timeToCollision);
+
+    if (wallDirection === "vert") {
+        body.position.x = afterCollision;
+        body.velocity.x = -body.velocity.x;
+    } else {
+        body.position.y = afterCollision;
+        body.velocity.y = -body.velocity.y;
+    }
+}
+
 // down is a positive force in y dir
 // right is a positive force in x dir
 export class Simulator {
@@ -72,7 +109,7 @@ export class Simulator {
     }
 
     step(dt: number) {
-        const substeps = 5;
+        const substeps = 4;
         dt *= this.timeMultiplier;
         dt = dt / substeps;
 
@@ -114,41 +151,30 @@ export class Simulator {
     checkBoundaries() {
         for (const body of this.bodies) {
             if (body.position.x - body.radius < this.boundaries.x.min) {
-                const prevPos =
-                    body.position.x - body.velocity.x * body._prevDt;
-                const timeToCollision = findPOI1dStaticLinear(
-                    body.velocity.x,
-                    prevPos,
-                    body.radius,
-                    this.boundaries.x.min
-                );
-
-                console.log(timeToCollision, body._prevDt);
-
-                const beforeCollision =
-                    prevPos + body.velocity.x * timeToCollision;
-                const afterCollision =
-                    beforeCollision -
-                    body.velocity.x * (body._prevDt - timeToCollision);
-
-                // body.position.x = this.boundaries.x.min + body.radius;
-                body.position.x = afterCollision;
-                body.velocity.x = -body.velocity.x;
+                wallCollisionResolution(body, {
+                    wallDirection: "vert",
+                    x: this.boundaries.x.min,
+                });
             }
-
             if (body.position.x + body.radius > this.boundaries.x.max) {
-                body.position.x = this.boundaries.x.max - body.radius;
-                body.velocity.x = -body.velocity.x;
+                wallCollisionResolution(body, {
+                    wallDirection: "vert",
+                    x: this.boundaries.x.max,
+                });
             }
 
             if (body.position.y - body.radius < this.boundaries.y.min) {
-                body.position.y = this.boundaries.y.min + body.radius;
-                body.velocity.y = -body.velocity.y;
+                wallCollisionResolution(body, {
+                    wallDirection: "horiz",
+                    y: this.boundaries.y.min,
+                });
             }
 
             if (body.position.y + body.radius > this.boundaries.y.max) {
-                body.position.y = this.boundaries.y.max - body.radius;
-                body.velocity.y = -body.velocity.y;
+                wallCollisionResolution(body, {
+                    wallDirection: "horiz",
+                    y: this.boundaries.y.max,
+                });
             }
         }
     }

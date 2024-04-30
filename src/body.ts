@@ -20,6 +20,7 @@ export class Body {
     mass: number = 1;
     radius: number = 1;
     generateGravity: boolean = false;
+    _prevDt: number = 0;
 
     constructor(options: BodyOptions) {
         const defaultOptions = { generateGravity: false };
@@ -60,6 +61,7 @@ export class Body {
         this.updateVelocity(dt);
         this.updatePosition(dt);
         this.resetAcceleration();
+        this._prevDt = dt;
     }
 
     findGeneratedGravity(otherBody: Body): Vec2d {
