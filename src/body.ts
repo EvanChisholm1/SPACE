@@ -21,13 +21,14 @@ export class Body {
     radius: number = 1;
     generateGravity: boolean = false;
 
-    constructor(
-        position: Vec2d,
-        velocity: Vec2d,
-        mass: number = 1,
-        radius: number = 1,
-        generateGravity: boolean = false
-    ) {
+    constructor(options: BodyOptions) {
+        const defaultOptions = { generateGravity: false };
+
+        const { position, velocity, mass, radius, generateGravity } = {
+            ...defaultOptions,
+            ...options,
+        };
+
         this.position = position;
         this.velocity = velocity;
         this.acceleration = { x: 0, y: 0 };
@@ -77,16 +78,18 @@ export class Body {
     }
 }
 
+interface StaticBodyOptions {
+    position: Vec2d;
+    mass: number;
+    radius: number;
+    generateGravity?: boolean;
+}
+
 export class StaticBody extends Body {
     generateGravity: boolean = false;
-    constructor(
-        position: Vec2d,
-        mass: number,
-        radius: number = 1,
-        generateGravity = false
-    ) {
-        super(position, { x: 0, y: 0 }, mass, radius);
-        this.generateGravity = generateGravity;
+    constructor(options: StaticBodyOptions) {
+        const superOptions = { velocity: { x: 0, y: 0 }, ...options };
+        super(superOptions);
     }
 
     applyForce(force: Vec2d) {

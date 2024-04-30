@@ -7,3 +7,9 @@
 -   E nvironment
 
 SPACE is phyics simulator written in typescript for the web.
+
+## TODO:
+
+-   [ ] Rk4
+-   [ ] continuous collision detection
+-   [ ] GUI

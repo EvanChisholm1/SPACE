@@ -20,9 +20,27 @@ console.log(PIXELS_PER_METER, 50e2);
 function threeBodyProblem() {
     const M = 5e31;
     const bodies = [
-        new Body({ x: 50e6, y: 50e6 }, { x: 10, y: -7e6 }, M, 3e6, true),
-        new Body({ x: 50e6, y: 100e6 }, { x: -10e6, y: -7 }, M, 3e6, true),
-        new Body({ x: 100e6, y: 50e6 }, { x: 10, y: 10e6 }, M, 3e6, true),
+        new Body({
+            position: { x: 50e6, y: 50e6 },
+            velocity: { x: 10, y: -7e6 },
+            mass: M,
+            radius: 3e6,
+            generateGravity: true,
+        }),
+        new Body({
+            position: { x: 50e6, y: 100e6 },
+            velocity: { x: -10e6, y: -7 },
+            mass: M,
+            radius: 3e6,
+            generateGravity: true,
+        }),
+        new Body({
+            position: { x: 100e6, y: 50e6 },
+            velocity: { x: 10, y: 10e6 },
+            mass: M,
+            radius: 3e6,
+            generateGravity: true,
+        }),
     ];
 
     return new Simulator(bodies, {
@@ -36,21 +54,20 @@ function threeBodyProblem() {
 function orbit() {
     const bodies = [
         // earth
-        new StaticBody(
-            { x: WIDTH_IN_METERS / 2, y: WIDTH_IN_METERS / 2 },
-            // { x: 0, y: 0 },
-            6e29,
-            6e6,
-            true
-        ),
+        new StaticBody({
+            position: { x: WIDTH_IN_METERS / 2, y: WIDTH_IN_METERS / 2 },
+            mass: 6e29,
+            radius: 6e6,
+            generateGravity: true,
+        }),
         // moon
-        new Body(
-            { x: WIDTH_IN_METERS / 2, y: WIDTH_IN_METERS / 2 - 10e7 },
-            { x: 5e5, y: 0 },
-            5e22,
-            6e6,
-            false
-        ),
+        new Body({
+            position: { x: WIDTH_IN_METERS / 2, y: WIDTH_IN_METERS / 2 - 10e7 },
+            velocity: { x: 5e5, y: 0 },
+            mass: 5e22,
+            radius: 6e6,
+            generateGravity: false,
+        }),
     ];
     const simulator = new Simulator(
         bodies,
@@ -91,8 +108,18 @@ function orbit() {
 
 function linearCollision() {
     const bodies = [
-        new Body({ x: 50, y: 10 }, { x: 0, y: 10 }, 1, 3),
-        new Body({ x: 90, y: 50 }, { x: -10, y: 0 }, 1, 3),
+        new Body({
+            position: { x: 50, y: 10 },
+            velocity: { x: 0, y: 10 },
+            mass: 1,
+            radius: 3,
+        }),
+        new Body({
+            position: { x: 90, y: 50 },
+            velocity: { x: -10, y: 0 },
+            mass: 1,
+            radius: 3,
+        }),
     ];
 
     return new Simulator(
@@ -111,12 +138,12 @@ function manyBouncyBalls() {
     const bodies = [];
     for (let i = 0; i < 10; i++) {
         bodies.push(
-            new Body(
-                { x: Math.random() * 100, y: Math.random() * 100 },
-                { x: Math.random() * 10, y: Math.random() * 10 },
-                Math.random() * 10,
-                3
-            )
+            new Body({
+                position: { x: Math.random() * 100, y: Math.random() * 100 },
+                velocity: { x: Math.random() * 10, y: Math.random() * 10 },
+                mass: Math.random() * 10,
+                radius: 3,
+            })
         );
     }
 
