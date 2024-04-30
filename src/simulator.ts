@@ -9,6 +9,34 @@ type bound = {
     y: { min: number; max: number };
 };
 
+function findElasticCollisionVelocities(body1: Body, body2: Body) {
+    const m1 = body1.mass;
+    const m2 = body2.mass;
+    const vi1 = body1.velocity;
+    const vi2 = body2.velocity;
+
+    const vf1 = {
+        x: ((m1 - m2) * vi1.x + 2 * m2 * vi2.x) / (m1 + m2),
+        y: ((m1 - m2) * vi1.y + 2 * m2 * vi2.y) / (m1 + m2),
+    };
+
+    const vf2 = {
+        x: ((m2 - m1) * vi2.x + 2 * m1 * vi1.x) / (m1 + m2),
+        y: ((m2 - m1) * vi2.y + 2 * m1 * vi1.y) / (m1 + m2),
+    };
+
+    return { vf1, vf2 };
+}
+
+function detectCircularCollision(body1: Body, body2: Body) {
+    const distance = Math.sqrt(
+        (body1.position.x - body2.position.x) ** 2 +
+            (body1.position.y - body2.position.y) ** 2
+    );
+
+    return distance < body1.radius + body2.radius;
+}
+
 // down is a positive force in y dir
 // right is a positive force in x dir
 export class Simulator {
@@ -41,6 +69,19 @@ export class Simulator {
                 if (generator === body) continue;
                 const gravity = body.findGeneratedGravity(generator);
                 body.applyForce(gravity);
+            }
+
+            for (const otherBody of this.bodies) {
+                if (otherBody === body) continue;
+                if (detectCircularCollision(body, otherBody)) {
+                    const { vf1, vf2 } = findElasticCollisionVelocities(
+                        body,
+                        otherBody
+                    );
+
+                    body.velocity = vf1;
+                    otherBody.velocity = vf2;
+                }
             }
             body.update(dt);
         }
