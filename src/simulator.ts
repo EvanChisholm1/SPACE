@@ -37,6 +37,20 @@ function detectCircularCollision(body1: Body, body2: Body) {
     return distance < body1.radius + body2.radius;
 }
 
+function findPOI1dStaticLinear(
+    velComponent: number,
+    initialPos: number,
+    radius: number,
+    staticPoint: number
+): number {
+    return (
+        (staticPoint -
+            (initialPos < staticPoint ? radius : -radius) -
+            initialPos) /
+        velComponent
+    );
+}
+
 // down is a positive force in y dir
 // right is a positive force in x dir
 export class Simulator {
@@ -58,35 +72,40 @@ export class Simulator {
     }
 
     step(dt: number) {
+        const substeps = 5;
         dt *= this.timeMultiplier;
+        dt = dt / substeps;
+
         const gravityGenerators = this.bodies.filter(
             (body) => body.generateGravity
         );
 
-        for (const body of this.bodies) {
-            if (this.gravityOn) body.applyForce({ x: 0, y: Fg(body.mass) });
-            for (const generator of gravityGenerators) {
-                if (generator === body) continue;
-                const gravity = body.findGeneratedGravity(generator);
-                body.applyForce(gravity);
-            }
-
-            for (const otherBody of this.bodies) {
-                if (otherBody === body) continue;
-                if (detectCircularCollision(body, otherBody)) {
-                    const { vf1, vf2 } = findElasticCollisionVelocities(
-                        body,
-                        otherBody
-                    );
-
-                    body.velocity = vf1;
-                    otherBody.velocity = vf2;
+        for (let i = 0; i < substeps; i++) {
+            for (const body of this.bodies) {
+                if (this.gravityOn) body.applyForce({ x: 0, y: Fg(body.mass) });
+                for (const generator of gravityGenerators) {
+                    if (generator === body) continue;
+                    const gravity = body.findGeneratedGravity(generator);
+                    body.applyForce(gravity);
                 }
-            }
-            body.update(dt);
-        }
 
-        this.checkBoundaries();
+                for (const otherBody of this.bodies) {
+                    if (otherBody === body) continue;
+                    if (detectCircularCollision(body, otherBody)) {
+                        const { vf1, vf2 } = findElasticCollisionVelocities(
+                            body,
+                            otherBody
+                        );
+
+                        body.velocity = vf1;
+                        otherBody.velocity = vf2;
+                    }
+                }
+                body.update(dt);
+            }
+
+            this.checkBoundaries();
+        }
     }
 
     // TODO: implement continuous collision detection
@@ -95,7 +114,25 @@ export class Simulator {
     checkBoundaries() {
         for (const body of this.bodies) {
             if (body.position.x - body.radius < this.boundaries.x.min) {
-                body.position.x = this.boundaries.x.min + body.radius;
+                const prevPos =
+                    body.position.x - body.velocity.x * body._prevDt;
+                const timeToCollision = findPOI1dStaticLinear(
+                    body.velocity.x,
+                    prevPos,
+                    body.radius,
+                    this.boundaries.x.min
+                );
+
+                console.log(timeToCollision, body._prevDt);
+
+                const beforeCollision =
+                    prevPos + body.velocity.x * timeToCollision;
+                const afterCollision =
+                    beforeCollision -
+                    body.velocity.x * (body._prevDt - timeToCollision);
+
+                // body.position.x = this.boundaries.x.min + body.radius;
+                body.position.x = afterCollision;
                 body.velocity.x = -body.velocity.x;
             }
 
