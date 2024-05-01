@@ -7,13 +7,13 @@ const frameCounterElement = document.querySelector("#frame_counter")!;
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
-const WIDTH_IN_METERS = 1e8;
-const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
-console.log(PIXELS_PER_METER, 50e2);
-
-// const WIDTH_IN_METERS = 100;
+// const WIDTH_IN_METERS = 1e8;
 // const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
 // console.log(PIXELS_PER_METER, 50e2);
+
+const WIDTH_IN_METERS = 100;
+const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
+console.log(PIXELS_PER_METER, 50e2);
 
 // console.log(canvas.width / PIXELS_PER_METER);
 
@@ -49,7 +49,7 @@ function threeBodyProblem() {
     });
 }
 
-const simulator = threeBodyProblem();
+// const simulator = threeBodyProblem();
 
 function orbit() {
     const bodies = [
@@ -176,6 +176,34 @@ function wallCollision() {
 }
 
 // const simulator = wallCollision();
+
+function conservationOfEnergy() {
+    const bodies: Body[] = [
+        new Body({
+            position: { x: 10, y: 50 },
+            velocity: { x: 10, y: 0 },
+            mass: 200,
+            radius: 3,
+        }),
+        new Body({
+            position: { x: 50, y: 50 },
+            velocity: { x: 0, y: 0 },
+            mass: 1,
+            radius: 3,
+        }),
+    ];
+
+    return new Simulator(
+        bodies,
+        {
+            x: { min: 0, max: canvas.width / PIXELS_PER_METER },
+            y: { min: 0, max: canvas.height / PIXELS_PER_METER },
+        },
+        false
+    );
+}
+
+const simulator = conservationOfEnergy();
 
 let prevTime = performance.now();
 let frameCount = 0;

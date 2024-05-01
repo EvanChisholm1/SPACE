@@ -163,10 +163,12 @@ export class Simulator {
                     );
 
                     body.updatePosition(timeToCollision);
+                    otherBody.updatePosition(timeToCollision);
                     otherBody.velocity = vf2;
                     body.velocity = vf1;
 
                     remainingDt = dt - timeToCollision;
+                    otherBody.updatePosition(remainingDt);
                 }
                 body.update(remainingDt);
             }
