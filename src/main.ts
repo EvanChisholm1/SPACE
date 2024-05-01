@@ -7,13 +7,13 @@ const frameCounterElement = document.querySelector("#frame_counter")!;
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
-// const WIDTH_IN_METERS = 1e8;
-// const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
-// console.log(PIXELS_PER_METER, 50e2);
-
-const WIDTH_IN_METERS = 100;
+const WIDTH_IN_METERS = 1e8;
 const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
 console.log(PIXELS_PER_METER, 50e2);
+
+// const WIDTH_IN_METERS = 100;
+// const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
+// console.log(PIXELS_PER_METER, 50e2);
 
 // console.log(canvas.width / PIXELS_PER_METER);
 
@@ -49,7 +49,7 @@ function threeBodyProblem() {
     });
 }
 
-// const simulator = threeBodyProblem();
+const simulator = threeBodyProblem();
 
 function orbit() {
     const bodies = [
@@ -175,7 +175,7 @@ function wallCollision() {
     );
 }
 
-const simulator = wallCollision();
+// const simulator = wallCollision();
 
 let prevTime = performance.now();
 let frameCount = 0;

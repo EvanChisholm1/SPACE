@@ -88,6 +88,27 @@ function wallCollisionResolution(body: Body, options: WallCollisionOptions) {
     }
 }
 
+function findPOIBodies(body1: Body, body2: Body): number {
+    const deltaX = body1.position.x - body2.position.x;
+    const deltaY = body1.position.y - body2.position.y;
+
+    const deltaVx = body1.velocity.x - body2.velocity.x;
+    const deltaVy = body1.velocity.y - body2.velocity.y;
+
+    const a = deltaVx ** 2 + deltaVy ** 2;
+    const b = 2 * (deltaX * deltaVx + deltaY * deltaVy);
+    const c = deltaX ** 2 + deltaY ** 2 - (body1.radius + body2.radius) ** 2;
+
+    const discriminant = b ** 2 - 4 * a * c;
+
+    if (discriminant < 0) return -1;
+
+    const t1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+    const t2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+
+    return Math.min(t1, t2);
+}
+
 // down is a positive force in y dir
 // right is a positive force in x dir
 export class Simulator {
@@ -126,28 +147,34 @@ export class Simulator {
                     body.applyForce(gravity);
                 }
 
+                body.updateVelocity(dt);
+
+                let remainingDt = dt;
+
                 for (const otherBody of this.bodies) {
                     if (otherBody === body) continue;
-                    if (detectCircularCollision(body, otherBody)) {
-                        const { vf1, vf2 } = findElasticCollisionVelocities(
-                            body,
-                            otherBody
-                        );
 
-                        body.velocity = vf1;
-                        otherBody.velocity = vf2;
-                    }
+                    const timeToCollision = findPOIBodies(body, otherBody);
+                    if (timeToCollision < 0 || timeToCollision > dt) continue;
+
+                    const { vf1, vf2 } = findElasticCollisionVelocities(
+                        body,
+                        otherBody
+                    );
+
+                    body.updatePosition(timeToCollision);
+                    otherBody.velocity = vf2;
+                    body.velocity = vf1;
+
+                    remainingDt = dt - timeToCollision;
                 }
-                body.update(dt);
+                body.update(remainingDt);
             }
 
             this.checkBoundaries();
         }
     }
 
-    // TODO: implement continuous collision detection
-    // this is a simple collision detection that just bounces the body off the wall
-    // assumes no energy loss
     checkBoundaries() {
         for (const body of this.bodies) {
             if (body.position.x - body.radius < this.boundaries.x.min) {

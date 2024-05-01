@@ -13,3 +13,4 @@ SPACE is phyics simulator written in typescript for the web.
 -   [ ] Rk4
 -   [ ] continuous collision detection
 -   [ ] GUI
+-   [ ] Always be refactoring
