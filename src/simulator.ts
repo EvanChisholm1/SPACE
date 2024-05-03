@@ -1,4 +1,5 @@
 import { Body } from "./body";
+import { addVecs, scaleVec } from "./vec";
 
 const Fg = (mass: number) => {
     return mass * 9.8;
@@ -129,50 +130,91 @@ export class Simulator {
         this.timeMultiplier = timeMultiplier;
     }
 
-    step(dt: number) {
-        const substeps = 4;
-        dt *= this.timeMultiplier;
-        dt = dt / substeps;
-
+    updateVelocities(dt: number) {
         const gravityGenerators = this.bodies.filter(
             (body) => body.generateGravity
         );
 
-        for (let i = 0; i < substeps; i++) {
-            for (const body of this.bodies) {
-                if (this.gravityOn) body.applyForce({ x: 0, y: Fg(body.mass) });
-                for (const generator of gravityGenerators) {
-                    if (generator === body) continue;
-                    const gravity = body.findGeneratedGravity(generator);
-                    body.applyForce(gravity);
-                }
-
-                body.updateVelocity(dt);
-
-                let remainingDt = dt;
-
-                for (const otherBody of this.bodies) {
-                    if (otherBody === body) continue;
-
-                    const timeToCollision = findPOIBodies(body, otherBody);
-                    if (timeToCollision < 0 || timeToCollision > dt) continue;
-
-                    const { vf1, vf2 } = findElasticCollisionVelocities(
-                        body,
-                        otherBody
-                    );
-
-                    body.updatePosition(timeToCollision);
-                    otherBody.updatePosition(timeToCollision);
-                    otherBody.velocity = vf2;
-                    body.velocity = vf1;
-
-                    remainingDt = dt - timeToCollision;
-                    otherBody.updatePosition(remainingDt);
-                }
-                body.update(remainingDt);
+        for (const body of this.bodies) {
+            for (const generator of gravityGenerators) {
+                if (generator === body) continue;
+                const gravity = body.findGeneratedGravity(generator);
+                body.applyForce(gravity);
             }
 
+            if (this.gravityOn) body.applyForce({ x: 0, y: Fg(body.mass) });
+
+            body.updateVelocity(dt);
+        }
+    }
+
+    updatePositions(dt: number) {
+        for (const body of this.bodies) {
+            body.updatePosition(dt);
+        }
+    }
+
+    resetAccelerations() {
+        for (const body of this.bodies) {
+            body.resetAcceleration();
+        }
+    }
+
+    resolveCollisions() {
+        for (const body1 of this.bodies) {
+            const dt = body1._prevDt;
+            for (const body2 of this.bodies) {
+                if (body1 === body2) continue;
+
+                const prevLoc1 = addVecs(
+                    body1.position,
+                    scaleVec(body1.velocity, -dt)
+                );
+                const prevLoc2 = addVecs(
+                    body2.position,
+                    scaleVec(body2.velocity, -dt)
+                );
+
+                const body1OgFinalPos = { ...body1.position };
+                const body2OgFinalPos = { ...body2.position };
+
+                body1.position = prevLoc1;
+                body2.position = prevLoc2;
+
+                const timeToCollision = findPOIBodies(body1, body2);
+                if (timeToCollision < 0 || timeToCollision > dt) {
+                    body1.position = body1OgFinalPos;
+                    body2.position = body2OgFinalPos;
+                    continue;
+                }
+
+                const { vf1, vf2 } = findElasticCollisionVelocities(
+                    body1,
+                    body2
+                );
+
+                body1.updatePosition(timeToCollision);
+                body2.updatePosition(timeToCollision);
+
+                body1.velocity = vf1;
+                body2.velocity = vf2;
+
+                body1.updatePosition(dt - timeToCollision);
+                body2.updatePosition(dt - timeToCollision);
+            }
+        }
+    }
+
+    step(dt: number) {
+        const substeps = 6;
+        dt *= this.timeMultiplier;
+        dt = dt / substeps;
+
+        for (let i = 0; i < substeps; i++) {
+            this.updateVelocities(dt);
+            this.updatePositions(dt);
+            this.resolveCollisions();
+            this.resetAccelerations();
             this.checkBoundaries();
         }
     }

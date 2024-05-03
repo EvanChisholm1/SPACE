@@ -51,6 +51,7 @@ export class Body {
 
     updatePosition(dt: number) {
         this.position = addVecs(this.position, scaleVec(this.velocity, dt));
+        this._prevDt = dt;
     }
 
     updateVelocity(dt: number) {
