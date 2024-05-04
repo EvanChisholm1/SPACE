@@ -11,6 +11,7 @@ interface BodyOptions {
     mass: number;
     radius: number;
     generateGravity?: boolean;
+    color?: string;
 }
 
 export class Body {
@@ -21,11 +22,12 @@ export class Body {
     radius: number = 1;
     generateGravity: boolean = false;
     _prevDt: number = 0;
+    color: string;
 
     constructor(options: BodyOptions) {
-        const defaultOptions = { generateGravity: false };
+        const defaultOptions = { generateGravity: false, color: "white" };
 
-        const { position, velocity, mass, radius, generateGravity } = {
+        const { position, velocity, mass, radius, generateGravity, color } = {
             ...defaultOptions,
             ...options,
         };
@@ -36,6 +38,7 @@ export class Body {
         this.mass = mass;
         this.radius = radius;
         this.generateGravity = generateGravity;
+        this.color = color;
     }
 
     resetAcceleration() {

@@ -26,6 +26,7 @@ function threeBodyProblem() {
             mass: M,
             radius: 3e6,
             generateGravity: true,
+            color: "green",
         }),
         new Body({
             position: { x: 50e6, y: 100e6 },
@@ -33,6 +34,7 @@ function threeBodyProblem() {
             mass: M,
             radius: 3e6,
             generateGravity: true,
+            color: "red",
         }),
         new Body({
             position: { x: 100e6, y: 50e6 },
@@ -40,6 +42,7 @@ function threeBodyProblem() {
             mass: M,
             radius: 3e6,
             generateGravity: true,
+            color: "blue",
         }),
     ];
 
