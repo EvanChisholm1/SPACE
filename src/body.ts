@@ -1,4 +1,4 @@
-import { Vec2d, addVecs, scaleVec, subVecs, normalizeVec } from "./vec";
+import { Vec2d, addVecs, scaleVec, subVecs } from "./vec";
 
 function universalGravitation(m1: number, m2: number, r: number): number {
     const G = 6.674 * 10 ** -11;
@@ -16,6 +16,7 @@ interface BodyOptions {
 
 export class Body {
     position: Vec2d;
+    prevPosition: Vec2d;
     velocity: Vec2d;
     acceleration: Vec2d;
     mass: number = 1;
@@ -39,6 +40,7 @@ export class Body {
         this.radius = radius;
         this.generateGravity = generateGravity;
         this.color = color;
+        this.prevPosition = { x: position.x, y: position.y };
     }
 
     resetAcceleration() {
@@ -53,6 +55,7 @@ export class Body {
     }
 
     updatePosition(dt: number) {
+        this.prevPosition = { x: this.position.x, y: this.position.y };
         this.position = addVecs(this.position, scaleVec(this.velocity, dt));
         this._prevDt = dt;
     }
@@ -95,6 +98,46 @@ export class StaticBody extends Body {
     generateGravity: boolean = false;
     constructor(options: StaticBodyOptions) {
         const superOptions = { velocity: { x: 0, y: 0 }, ...options };
+        super(superOptions);
+    }
+
+    applyForce(force: Vec2d) {
+        // do nothing
+        return;
+    }
+
+    updatePosition(dt: number): void {
+        return;
+    }
+
+    updateVelocity(dt: number): void {
+        return;
+    }
+
+    update(dt: number): void {
+        return;
+    }
+}
+
+interface WallOptions {
+    tail: Vec2d;
+    tip: Vec2d;
+    mass: number;
+    generateGravity?: boolean;
+    width: number;
+}
+
+export class Line extends Body {
+    constructor(options: WallOptions) {
+        const superOptions = {
+            ...options,
+            radius: options.width / 2,
+            velocity: { x: 0, y: 0 },
+            position: {
+                x: (options.tip.x + options.tail.x) / 2,
+                y: (options.tip.y + options.tail.y) / 2,
+            },
+        };
         super(superOptions);
     }
 
