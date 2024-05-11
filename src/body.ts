@@ -85,6 +85,20 @@ export class Body {
 
         return gravity;
     }
+
+    render(ctx: CanvasRenderingContext2D, pixelsPerMeter: number) {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(
+            this.position.x * pixelsPerMeter,
+            this.position.y * pixelsPerMeter,
+            this.radius * pixelsPerMeter,
+            0,
+            2 * Math.PI
+        );
+        ctx.closePath();
+        ctx.fill();
+    }
 }
 
 interface StaticBodyOptions {

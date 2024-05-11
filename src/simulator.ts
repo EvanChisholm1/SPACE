@@ -161,18 +161,7 @@ export class Simulator {
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
         for (const body of this.bodies) {
-            // ctx.fillStyle = "white";
-            ctx.fillStyle = body.color;
-            ctx.beginPath();
-            ctx.arc(
-                body.position.x * pixelsPerMeter,
-                body.position.y * pixelsPerMeter,
-                body.radius * pixelsPerMeter,
-                0,
-                2 * Math.PI
-            );
-            ctx.closePath();
-            ctx.fill();
+            body.render(ctx, pixelsPerMeter);
         }
     }
 
