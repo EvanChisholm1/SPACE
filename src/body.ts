@@ -139,11 +139,16 @@ interface WallOptions {
     mass: number;
     generateGravity?: boolean;
     width: number;
+    color?: string;
 }
 
 export class Line extends Body {
+    tail: Vec2d;
+    tip: Vec2d;
+    width: number;
     constructor(options: WallOptions) {
         const superOptions = {
+            color: "white",
             ...options,
             radius: options.width / 2,
             velocity: { x: 0, y: 0 },
@@ -153,6 +158,10 @@ export class Line extends Body {
             },
         };
         super(superOptions);
+
+        this.tail = options.tail;
+        this.tip = options.tip;
+        this.width = options.width;
     }
 
     applyForce(force: Vec2d) {
@@ -170,5 +179,16 @@ export class Line extends Body {
 
     update(dt: number): void {
         return;
+    }
+
+    render(ctx: CanvasRenderingContext2D, pixelsPerMeter: number) {
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = this.color;
+        ctx.beginPath();
+        ctx.lineWidth = this.width;
+        ctx.moveTo(this.tip.x * pixelsPerMeter, this.tip.y * pixelsPerMeter);
+        ctx.lineTo(this.tail.x * pixelsPerMeter, this.tail.y * pixelsPerMeter);
+        ctx.stroke();
+        ctx.closePath();
     }
 }

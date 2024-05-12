@@ -1,4 +1,4 @@
-import { Body, StaticBody } from "./body";
+import { Body, Line, StaticBody } from "./body";
 import { Simulator } from "./simulator";
 
 // const PIXELS_PER_METER = 1 / 1e8;
@@ -7,13 +7,13 @@ const frameCounterElement = document.querySelector("#frame_counter")!;
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
-const WIDTH_IN_METERS = 1e8;
-const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
-console.log(PIXELS_PER_METER, 50e2);
-
-// const WIDTH_IN_METERS = 100;
+// const WIDTH_IN_METERS = 1e8;
 // const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
 // console.log(PIXELS_PER_METER, 50e2);
+
+const WIDTH_IN_METERS = 100;
+const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
+console.log(PIXELS_PER_METER, 50e2);
 
 // console.log(canvas.width / PIXELS_PER_METER);
 
@@ -52,7 +52,7 @@ function threeBodyProblem() {
     });
 }
 
-const simulator = threeBodyProblem();
+// const simulator = threeBodyProblem();
 
 function orbit() {
     const bodies = [
@@ -139,13 +139,13 @@ function linearCollision() {
 
 function manyBouncyBalls() {
     const bodies = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 250; i++) {
         bodies.push(
             new Body({
                 position: { x: Math.random() * 100, y: Math.random() * 100 },
                 velocity: { x: Math.random() * 10, y: Math.random() * 10 },
                 mass: Math.random() * 10,
-                radius: 3,
+                radius: 0.5,
             })
         );
     }
@@ -207,6 +207,36 @@ function conservationOfEnergy() {
 }
 
 // const simulator = conservationOfEnergy();
+
+function walls() {
+    const bodies = [
+        new Line({
+            mass: 1,
+            tail: { x: 0, y: 0 },
+            tip: { x: 10, y: 10 },
+            color: "red",
+            width: 2,
+        }),
+        new Line({
+            mass: 1,
+            tail: { x: 10, y: 80 },
+            tip: { x: 90, y: 80 },
+            color: "blue",
+            width: 9,
+        }),
+    ];
+
+    return new Simulator(
+        bodies,
+        {
+            x: { min: 0, max: canvas.width / PIXELS_PER_METER },
+            y: { min: 0, max: canvas.height / PIXELS_PER_METER },
+        },
+        false
+    );
+}
+
+const simulator = walls();
 
 let prevTime = performance.now();
 let frameCount = 0;
