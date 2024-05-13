@@ -5,10 +5,7 @@ import {
     findElasticCollisionVelocities,
     wallCollisionResolution,
 } from "./collisions";
-
-const Fg = (mass: number) => {
-    return mass * 9.8;
-};
+import { Fg } from "./gravity";
 
 type bound = {
     x: { min: number; max: number };

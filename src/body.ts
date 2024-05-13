@@ -1,9 +1,5 @@
 import { Vec2d, addVecs, scaleVec, subVecs } from "./vec";
-
-function universalGravitation(m1: number, m2: number, r: number): number {
-    const G = 6.674 * 10 ** -11;
-    return (G * m1 * m2) / r ** 2;
-}
+import { universalGravitation } from "./gravity";
 
 interface BodyOptions {
     position: Vec2d;
