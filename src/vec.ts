@@ -25,8 +25,8 @@ export function addVecs(a: Vec2d, b: Vec2d): Vec2d {
     };
 }
 
-export function scaleVec({ x, y }: Vec2d, scalar: number): Vec2d {
-    return { x: x * scalar, y: y * scalar };
+export function scaleVec(vec: Vec2d, scalar: number): Vec2d {
+    return { x: vec.x * scalar, y: vec.y * scalar };
 }
 
 export function normalizeVec(vec: Vec2d): Vec2d {
@@ -34,6 +34,24 @@ export function normalizeVec(vec: Vec2d): Vec2d {
     return scaleVec(vec, 1 / magnitude);
 }
 
+export function unit(vec: Vec2d): Vec2d {
+    return normalizeVec(vec);
+}
+
 export function subVecs(a: Vec2d, b: Vec2d): Vec2d {
     return addVecs(a, scaleVec(b, -1));
+}
+
+export function norm(vec: Vec2d): Vec2d {
+    return { x: vec.y, y: -vec.x };
+}
+
+export function dot(u: Vec2d, v: Vec2d): number {
+    return u.x * v.x + u.y * v.y;
+}
+
+export function reflect(d: Vec2d, n: Vec2d): Vec2d {
+    console.log("D", d);
+    console.log("n", n);
+    return subVecs(d, scaleVec(n, 2 * dot(d, n)));
 }

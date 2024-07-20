@@ -1,4 +1,5 @@
-import { Body } from "./body";
+import { Body, Line } from "./body";
+import { subVecs, unit, addVecs, scaleVec, norm, reflect } from "./vec";
 
 export function findElasticCollisionVelocities(body1: Body, body2: Body) {
     const m1 = body1.mass;
@@ -101,4 +102,72 @@ export function findPOIBodies(body1: Body, body2: Body): number {
     const t2 = (-b - Math.sqrt(discriminant)) / (2 * a);
 
     return Math.min(t1, t2);
+}
+
+export function findPOIBodyLine(body: Body, line: Line): number {
+    const v = body.velocity;
+    const x0 = body.position.x;
+    const y0 = body.position.y;
+    const d = subVecs(line.tip, line.tail);
+    const normal = norm(d);
+    const A = normal.x;
+    const B = normal.y;
+    const C = -A * line.tip.x - B * line.tip.y;
+
+    const t = (A * x0 + B * y0 + C) / -(A * v.x + B * v.y);
+
+    // const o = body.position;
+    // const v = body.velocity;
+    // const f = line.tip;
+    // const e = line.tail;
+    // const d = subVecs(e, f);
+    // console.log(d);
+    // const d = unit(subVecs(f, e));
+
+    // console.log(p, v, f, e, d);
+    // console.log(v);
+    // if (v.x == 0) {
+    //     console.log("HMM");
+    //     console.log(body);
+    // }
+
+    // we do a little algebra
+    // const s = (p.y + (f.x - p.x) / v.x - f.y) / (1 - d.x / (v.x * d.y));
+    // const s = (p.y + (f.x - p.x) / v.x - f.y) / d.y / (1 - d.x / (v.x * d.y));
+    // const s =
+    //     ((o.y - f.y) / d.y + (f.x - o.x) / (v.x * d.y)) /
+    //     (1 - d.x / (v.x * d.y));
+    // console.log("S: ", s);
+    // const t = (f.x + s * d.x - o.x) / v.x;
+    // console.log("T: ", s);
+    return t;
+}
+
+export function resolveBodyLineCollision(body: Body, line: Line) {
+    const dt = body._prevDt;
+    // console.log("DT:", dt);
+
+    const prevLoc = addVecs(body.position, scaleVec(body.velocity, -dt));
+    const bodyOgFinalPos = { ...body.position };
+
+    body.position = prevLoc;
+    // console.log(prevLoc);
+
+    const timeToCollision = findPOIBodyLine(body, line);
+    // console.log("TTC: ", timeToCollision);
+
+    if (timeToCollision < 0 || timeToCollision > dt || isNaN(timeToCollision)) {
+        body.position = bodyOgFinalPos;
+        return;
+    }
+    console.log("hello");
+    const lineNorm = unit(norm(subVecs(line.tip, line.tail)));
+
+    const vf = reflect(body.velocity, lineNorm);
+    console.log(vf);
+
+    body.updatePosition(timeToCollision);
+    body.velocity = vf;
+
+    body.updatePosition(dt - timeToCollision);
 }

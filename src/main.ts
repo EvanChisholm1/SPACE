@@ -11,12 +11,12 @@ const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 // const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
 // console.log(PIXELS_PER_METER, 50e2);
 
-const WIDTH_IN_METERS = 5e8;
-const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
-console.log(PIXELS_PER_METER, 50e2);
-
-// const WIDTH_IN_METERS = 100;
+// const WIDTH_IN_METERS = 5e8;
 // const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
+// console.log(PIXELS_PER_METER, 50e2);
+
+const WIDTH_IN_METERS = 100;
+const PIXELS_PER_METER = canvas.width / WIDTH_IN_METERS;
 // console.log(PIXELS_PER_METER, 50e2);
 
 // console.log(canvas.width / PIXELS_PER_METER);
@@ -129,7 +129,7 @@ function nBodyProblem() {
 }
 
 // const simulator = threeBodyProblem();
-const simulator = nBodyProblem();
+// const simulator = nBodyProblem();
 
 function spawn() {
     const M = 6e31;
@@ -144,7 +144,7 @@ function spawn() {
             color: "purple",
         })
     );
-    console.log(simulator.bodies.length);
+    // console.log(simulator.bodies.length);
 }
 
 function orbit() {
@@ -303,17 +303,24 @@ function conservationOfEnergy() {
 
 function walls() {
     const bodies = [
-        new Line({
+        new Body({
             mass: 1,
-            tail: { x: 0, y: 0 },
-            tip: { x: 10, y: 10 },
-            color: "red",
-            width: 2,
+            position: { x: 50, y: 10 },
+            radius: 5,
+            velocity: { x: 0.1, y: 0 },
+            color: "white",
         }),
+        // new Line({
+        //     mass: 1,
+        //     tail: { x: 0, y: 0 },
+        //     tip: { x: 10, y: 10 },
+        //     color: "red",
+        //     width: 2,
+        // }),
         new Line({
             mass: 1,
             tail: { x: 10, y: 80 },
-            tip: { x: 90, y: 80 },
+            tip: { x: 90, y: 82 },
             color: "blue",
             width: 9,
         }),
@@ -325,11 +332,11 @@ function walls() {
             x: { min: 0, max: canvas.width / PIXELS_PER_METER },
             y: { min: 0, max: canvas.height / PIXELS_PER_METER },
         },
-        false
+        true
     );
 }
 
-// const simulator = walls();
+const simulator = walls();
 
 const spawnButton = document.querySelector("#spawn");
 
@@ -358,7 +365,7 @@ function loop() {
     simulator.step(dt);
     simulator.render(ctx, PIXELS_PER_METER);
 
-    console.log(findTotalKinetic());
+    // console.log(findTotalKinetic());
     requestAnimationFrame(loop);
 }
 

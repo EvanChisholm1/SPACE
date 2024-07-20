@@ -1,9 +1,10 @@
-import { Body } from "./body";
+import { Body, Line } from "./body";
 import { addVecs, scaleVec } from "./vec";
 import {
     findPOIBodies,
     findElasticCollisionVelocities,
     wallCollisionResolution,
+    resolveBodyLineCollision,
 } from "./collisions";
 import { Fg } from "./gravity";
 
@@ -53,6 +54,9 @@ export class Simulator {
     updatePositions(dt: number) {
         for (const body of this.bodies) {
             body.updatePosition(dt);
+            // if (body instanceof Body) {
+            // console.log(body.position);
+            // }
         }
     }
 
@@ -62,47 +66,56 @@ export class Simulator {
         }
     }
 
+    resolveCollision(body1: Body, body2: Body) {
+        if (body1 instanceof Line && body2 instanceof Line) return;
+
+        if (
+            (body1 instanceof Line && body2 instanceof Body) ||
+            (body1 instanceof Body && body2 instanceof Line)
+        ) {
+            const body = !(body1 instanceof Line) ? body1 : body2;
+            const line = body1 instanceof Line ? body1 : body2;
+
+            resolveBodyLineCollision(body, line as Line);
+            return;
+        }
+
+        const dt = body1._prevDt;
+
+        const prevLoc1 = addVecs(body1.position, scaleVec(body1.velocity, -dt));
+        const prevLoc2 = addVecs(body2.position, scaleVec(body2.velocity, -dt));
+
+        const body1OgFinalPos = { ...body1.position };
+        const body2OgFinalPos = { ...body2.position };
+
+        body1.position = prevLoc1;
+        body2.position = prevLoc2;
+
+        const timeToCollision = findPOIBodies(body1, body2);
+
+        if (timeToCollision < 0 || timeToCollision > dt) {
+            body1.position = body1OgFinalPos;
+            body2.position = body2OgFinalPos;
+            return;
+        }
+
+        const { vf1, vf2 } = findElasticCollisionVelocities(body1, body2);
+
+        body1.updatePosition(timeToCollision);
+        body2.updatePosition(timeToCollision);
+
+        body1.velocity = vf1;
+        body2.velocity = vf2;
+
+        body1.updatePosition(dt - timeToCollision);
+        body2.updatePosition(dt - timeToCollision);
+    }
+
     resolveCollisions() {
         for (const body1 of this.bodies) {
-            const dt = body1._prevDt;
             for (const body2 of this.bodies) {
                 if (body1 === body2) continue;
-
-                const prevLoc1 = addVecs(
-                    body1.position,
-                    scaleVec(body1.velocity, -dt)
-                );
-                const prevLoc2 = addVecs(
-                    body2.position,
-                    scaleVec(body2.velocity, -dt)
-                );
-
-                const body1OgFinalPos = { ...body1.position };
-                const body2OgFinalPos = { ...body2.position };
-
-                body1.position = prevLoc1;
-                body2.position = prevLoc2;
-
-                const timeToCollision = findPOIBodies(body1, body2);
-                if (timeToCollision < 0 || timeToCollision > dt) {
-                    body1.position = body1OgFinalPos;
-                    body2.position = body2OgFinalPos;
-                    continue;
-                }
-
-                const { vf1, vf2 } = findElasticCollisionVelocities(
-                    body1,
-                    body2
-                );
-
-                body1.updatePosition(timeToCollision);
-                body2.updatePosition(timeToCollision);
-
-                body1.velocity = vf1;
-                body2.velocity = vf2;
-
-                body1.updatePosition(dt - timeToCollision);
-                body2.updatePosition(dt - timeToCollision);
+                this.resolveCollision(body1, body2);
             }
         }
     }
