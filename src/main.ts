@@ -307,7 +307,7 @@ function walls() {
             mass: 1,
             position: { x: 50, y: 10 },
             radius: 5,
-            velocity: { x: 0.1, y: 0 },
+            velocity: { x: 3.1, y: 0 },
             color: "white",
         }),
         // new Line({
@@ -319,8 +319,8 @@ function walls() {
         // }),
         new Line({
             mass: 1,
-            tail: { x: 10, y: 80 },
-            tip: { x: 90, y: 82 },
+            tail: { x: 10, y: 80 - 30 },
+            tip: { x: 90, y: 95 - 20 },
             color: "blue",
             width: 9,
         }),

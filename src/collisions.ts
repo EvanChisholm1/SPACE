@@ -104,42 +104,52 @@ export function findPOIBodies(body1: Body, body2: Body): number {
     return Math.min(t1, t2);
 }
 
-export function findPOIBodyLine(body: Body, line: Line): number {
+// export function findPOIBodyLine(body: Body, line: Line): number {
+//     const v = body.velocity;
+//     const x0 = body.position.x;
+//     const y0 = body.position.y;
+//     const d = subVecs(line.tip, line.tail);
+//     const normal = norm(d);
+//     const A = normal.x;
+//     const B = normal.y;
+//     const C = -A * line.tip.x - B * line.tip.y;
+
+//     const t =
+//         (A * x0 + B * y0 + C + body.radius * Math.sqrt(A ** 2 + B ** 2)) /
+//         -(A * v.x + B * v.y);
+
+//     // const o = body.position;
+//     // const v = body.velocity;
+//     // const f = line.tip;
+//     // const e = line.tail;
+//     // const d = subVecs(e, f);
+//     // console.log(d);
+//     // const d = unit(subVecs(f, e));
+
+//     // console.log(p, v, f, e, d);
+//     // console.log(v);
+//     // if (v.x == 0) {
+//     //     console.log("HMM");
+//     //     console.log(body);
+//     // }
+
+//     // we do a little algebra
+//     // const s = (p.y + (f.x - p.x) / v.x - f.y) / (1 - d.x / (v.x * d.y));
+//     // const s = (p.y + (f.x - p.x) / v.x - f.y) / d.y / (1 - d.x / (v.x * d.y));
+//     // const s =
+//     //     ((o.y - f.y) / d.y + (f.x - o.x) / (v.x * d.y)) /
+//     //     (1 - d.x / (v.x * d.y));
+//     // console.log("S: ", s);
+//     // const t = (f.x + s * d.x - o.x) / v.x;
+//     // console.log("T: ", s);
+//     return t;
+// }
+
+function findPOIBodyLine(body: Body, line: Line): number {
+    const n = norm(subVecs(line.tip, line.tail));
+    const s = line.tip;
     const v = body.velocity;
-    const x0 = body.position.x;
-    const y0 = body.position.y;
-    const d = subVecs(line.tip, line.tail);
-    const normal = norm(d);
-    const A = normal.x;
-    const B = normal.y;
-    const C = -A * line.tip.x - B * line.tip.y;
-
-    const t = (A * x0 + B * y0 + C) / -(A * v.x + B * v.y);
-
-    // const o = body.position;
-    // const v = body.velocity;
-    // const f = line.tip;
-    // const e = line.tail;
-    // const d = subVecs(e, f);
-    // console.log(d);
-    // const d = unit(subVecs(f, e));
-
-    // console.log(p, v, f, e, d);
-    // console.log(v);
-    // if (v.x == 0) {
-    //     console.log("HMM");
-    //     console.log(body);
-    // }
-
-    // we do a little algebra
-    // const s = (p.y + (f.x - p.x) / v.x - f.y) / (1 - d.x / (v.x * d.y));
-    // const s = (p.y + (f.x - p.x) / v.x - f.y) / d.y / (1 - d.x / (v.x * d.y));
-    // const s =
-    //     ((o.y - f.y) / d.y + (f.x - o.x) / (v.x * d.y)) /
-    //     (1 - d.x / (v.x * d.y));
-    // console.log("S: ", s);
-    // const t = (f.x + s * d.x - o.x) / v.x;
-    // console.log("T: ", s);
+    const t = (n.x * s.x + n.y * s.y) / (n.x * v.x + n.y * v.y);
     return t;
 }
 
